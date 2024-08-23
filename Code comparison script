@@ -1,0 +1,46 @@
+import difflib
+from pathlib import Path
+
+# Function to read file content
+def read_file(file_path):
+    with open(file_path, 'r') as file:
+        return file.readlines()
+
+# Function to generate HTML diff report
+def generate_html_diff(file1, file2):
+    text1 = read_file(file1)
+    text2 = read_file(file2)
+    diff = difflib.unified_diff(text1, text2, fromfile=file1, tofile=file2)
+    
+    html_diff = '<html><head><style>'
+    html_diff += '''
+    .insert { background-color: #d4fdd4; }
+    .delete { background-color: #fdd4d4; }
+    .context { background-color: #f0f0f0; }
+    pre { font-family: monospace; }
+    '''
+    html_diff += '</style></head><body><pre>'
+
+    for line in diff:
+        if line.startswith('---') or line.startswith('+++'):
+            html_diff += f'<span class="context">{line}</span>'
+        elif line.startswith('-'):
+            html_diff += f'<span class="delete">{line}</span>'
+        elif line.startswith('+'):
+            html_diff += f'<span class="insert">{line}</span>'
+        else:
+            html_diff += f'<span class="context">{line}</span>'
+    
+    html_diff += '</pre></body></html>'
+    return html_diff
+
+# Paths to your .py files
+file1_path = 'path/to/first_file.py'
+file2_path = 'path/to/second_file.py'
+
+# Generate the HTML report
+html_report = generate_html_diff(file1_path, file2_path)
+
+# Save the HTML report to a file
+with open('comparison_report.html', 'w') as report_file:
+    report_file.write(html_report)
